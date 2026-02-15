@@ -15,9 +15,9 @@ import matplotlib.patches as mpatches
 
 
 REGIME_COLOURS = {
-    "risk-on" "#2ecc71", #green
-    "neutral" "#f39c12", #orange
-    "risk-off" "#e74c3c" #red
+    "risk-on": "#2ecc71", #green
+    "neutral": "#f39c12", #orange
+    "risk-off": "#e74c3c" #red
 }
 
 DEFAULT_INT_COLOURS = {
