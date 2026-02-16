@@ -89,7 +89,7 @@ def plot_regime_overlay(
     ax.grid(axis="y", linestyle="--", alpha=0.4)
 
     # Legend
-    patches = [mpatches.Path(color=col, label=str(lab)) for lab, col in sorted(colour_map.items(), key=lambda x: str(x[0]))]
+    patches = [mpatches.Patch(color=col, label=str(lab)) for lab, col in sorted(colour_map.items(), key=lambda x: str(x[0]))]
     ax.legend(handles=patches, loc="upper left", framealpha=0.8, fontsize=10)
 
     fig.tight_layout()
@@ -104,7 +104,7 @@ def plot_transition_heatmap(
     # Plot regime transition probabilitiy matrix as heatmap
     fig, ax = plt.subplots(figsize=figsize)
     im = ax.imshow(trans_matrix.values, vmin=0, vmax=1, cmap="YlOrRd")
-    fig.colourbar(im, ax=ax, label="Probability")
+    fig.colorbar(im, ax=ax, label="Probability")
 
     labels = [str(c) for c in trans_matrix.columns]
     ax.set_xticks(range(len(labels)))
