@@ -10,7 +10,7 @@ import pandas_market_calendars as mcal
 MACRO_TICKERS = {
     "VIX": "^VIX",
     "GOLD": "GC=F",
-    "EURUSD": "EURUSD=X",
+    "USDIDX": "DX-Y.NYB",
     "US10Y": "^TNX"
 }
 

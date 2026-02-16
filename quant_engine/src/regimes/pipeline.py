@@ -70,7 +70,7 @@ def run_regime_pipeline(
     features = build_regime_features(
         msci = benchmark,
         gold = macro["GOLD"],
-        eurusd = macro["EURUSD"],
+        usdidx = macro["USDIDX"],
         vix = macro["VIX"]
     )
 

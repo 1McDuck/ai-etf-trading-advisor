@@ -9,7 +9,7 @@
 # - Volatility: rolling std of the log returns at 1m, 3m, 12m
 # - Drawdown: 12m rolling max drawdown
 # - VIX: 1m avg log vix, 1m cumulative change in log vix
-# - crossasset momentum: 3m gold mom, 3m eurusd mom
+# - crossasset momentum: 3m gold mom, 3m usd index mom
 
 import numpy as np
 import pandas as pd
@@ -22,13 +22,13 @@ def _log_returns(prices: pd.Series) -> pd.Series:
 def build_regime_features(
         msci: pd.Series,
         gold: pd.Series,
-        eurusd: pd.Series,
+        usdidx: pd.Series,
         vix: pd.Series
 ) -> pd.DataFrame:
     
     log_msci = _log_returns(msci)
     log_gold = _log_returns(gold)
-    log_eurusd = _log_returns(eurusd)
+    log_usdidx = _log_returns(usdidx)
     log_vix = _log_returns(vix)
 
     features: dict[str, pd.Series] = {}
@@ -46,9 +46,9 @@ def build_regime_features(
     features["vix_level_1m"] = log_vix.rolling(20).mean()
     features["vix_change_1m"] = log_vix.rolling(20).sum()
 
-    # Gold/eurusd mom
+    # Gold/usdidx mom
     features["gold_mom_3m"] = log_gold.rolling(60).sum()
-    features["eurusd_mom_3m"] = log_eurusd.rolling(60).sum()
+    features["usdidx_mom_3m"] = log_usdidx.rolling(60).sum()
 
     df = pd.DataFrame(features, index=msci.index)
 
