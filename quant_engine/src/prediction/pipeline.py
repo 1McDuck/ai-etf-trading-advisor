@@ -199,6 +199,6 @@ def run_ranking_pipeline(
 
     print(f"[Ranking] CV hit rate: {result.cv_hit_rate_mean: .1%} plus/minus {result.cv_hit_rate_std:.1%}")
     print(f"[Ranking] Feature importances: ")
-    print(f"{result.feature_importances.to_strin()}")
+    print(f"{result.feature_importances.to_string()}")
     
     return result
