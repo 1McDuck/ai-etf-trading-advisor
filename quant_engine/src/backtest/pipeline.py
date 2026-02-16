@@ -117,7 +117,7 @@ def run_full_backtest(
         print(f"{k:<35} {v}")
 
     return BacktestResult(
-        portfolio_returns=sim["benchmark_returns"],
+        portfolio_returns=sim["portfolio_returns"],
         benchmark_returns=sim["benchmark_returns"],
         turnover=sim["turnover"],
         weights_schedule=weights_schedule,

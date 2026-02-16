@@ -182,7 +182,7 @@ def run_ranking_pipeline(
 
     if regime_result is None:
         print(f"[Ranking] Running regime pipeline ...")
-        regime_result = run_ranking_pipeline(start=start, end=end)
+        regime_result = run_regime_pipeline(start=start, end=end)
 
     print(f"[Ranking] Building ETF Features")
     wide_features = build_etf_features(etf_prices=etf_prices, benchmark=benchmark, regime_labels=regime_result.labels)
