@@ -55,7 +55,7 @@ def build_weights_schedule(
         for etf in etf_names:
             feat_cols = {
                 "mom_1m": f"{etf}_mom_1m",
-                "mom_3m": f"{etf}_mom_1m",
+                "mom_3m": f"{etf}_mom_3m",
                 "vol_1m": f"{etf}_vol_1m",
                 "vol_3m": f"{etf}_vol_3m",
                 "rel_str_3m": f"{etf}_rel_str_3m"
