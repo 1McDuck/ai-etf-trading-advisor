@@ -3,7 +3,7 @@
 # Run the full strategy backtest and save the tearsheet
 
 # Run instructions:
-# python scrips/run_backtest.py
+# python scripts/run_backtest.py
 
 # Arguments:
 # --start YYYY-MM-DD
