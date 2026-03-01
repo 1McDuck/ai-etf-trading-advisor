@@ -1,14 +1,23 @@
 # quant_engine/src/regimes/pipeline.py
-
-# End to end regime detection pipeline
-# 1. Downloads data 
-# 2. Builds regime features
-# 3. Fits GMM
-# 4. Predicts
-# 5. Transition matrix
-
-# Returns a RegimeResult dataclass which has everything needed for the portfolio
-# construction later.
+#
+# End-to-end regime detection pipeline.
+#
+# Runs the full sequence:
+# 1. Download macro and benchmark price data (yfinance)
+# 2. Build the regime feature matrix (trend, volatility, drawdown, VIX, cross-asset)
+# 3. Fit a Gaussian Mixture Model to the features
+# 4. Predict and smooth the regime labels
+# 5. Compute the regime transition probability matrix
+# 6. Return everything in a RegimeResult dataclass
+#
+# The RegimeResult is self-contained - it carries the raw labels, confidence scores,
+# features, transition matrix, the fitted model objects, and price series needed for
+# downstream visualisation and portfolio construction.
+#
+# Note on label assignment:
+# GMM cluster integers have no inherent semantic meaning - cluster 0 is not always
+# "risk-off". The _assign_regime_labels() helper maps integer cluster IDs to named
+# labels by ranking each cluster's mean VIX level after fitting.
 
 from __future__ import annotations
 
@@ -22,10 +31,18 @@ from src.data.ingestion import get_price_data, multi_tickers, MACRO_TICKERS, BEN
 from src.features.regime_features import build_regime_features
 from src.regimes.detector import fit_regime_model, predict_regimes, transition_matrix
 
-REGIME_LABELS = {0: "risk-off", 1: "neutral", 2: "risk-on"}
 
+# Container holding all the outputs from a completed regime detection run
 @dataclass
 class RegimeResult:
+    # labels: smoothed integer regime labels (0, 1, 2) indexed by date
+    # confidence: max posterior probability per day (how certain the GMM was)
+    # features: the feature matrix used to fit the GMM
+    # transition_matrix: regime-to-regime switching probability matrix
+    # gmm: fitted GaussianMixture model
+    # scaler: fitted StandardScaler used during GMM training
+    # benchmark_prices: MSCI World prices aligned to the label date index
+    # macro_prices: macro price series (VIX, Gold, etc.) aligned to labels
     labels: pd.Series
     confidence: pd.Series
     features: pd.DataFrame
@@ -35,28 +52,27 @@ class RegimeResult:
     benchmark_prices: pd.Series
     macro_prices: pd.DataFrame
 
+    # Map integer cluster IDs to human-readable regime names
+    # Computed by sorting clusters by mean VIX level: lowest VIX = "risk-on", middle = "neutral", highest = "risk-off"
     def label_names(self) -> pd.Series:
         regime_map = _assign_regime_labels(self.labels, self.features)
         return self.labels.map(regime_map)
-    
 
-def run_regime_pipeline(
+
+# Run the full regime detection pipeline from data download to results
+def run_regime_pipeline(        
         start: str = "2000-01-01",
         end: str | None = None,
         n_regimes: int = 3,
         smooth_window: int = 5,
         random_state: int = 42
 ) -> RegimeResult:
-    # Full pipeline: downloads, features, GMM, regimes
-    # Given
-    # Start: date, start date (YYYY-MM-DD)
-    # End: date, end date - default is today
-    # n_regimes, number of regimes (GMM clusters)
-    # smooth_window, days for the rolling smoothing
-    # random_state, reproducibility seed
-
-    # Return: RegimeResult with labels, confidence, features, transition matrix, model info
-
+    # start: start date in YYYY-MM-DD format
+    # end: end date in YYYY-MM-DD format (defaults to today)
+    # n_regimes: number of GMM components (regime states) to fit
+    # smooth_window: rolling window size for the mode smoother (days)
+    # random_state: random seed for GMM reproducibility
+    # returns: RegimeResult containing labels, features, model objects and price data
     if end is None:
         end = pd.Timestamp.today().strftime("%Y-%m-%d")
 
@@ -68,10 +84,10 @@ def run_regime_pipeline(
 
     print(f"[Pipeline] Building Regime Features")
     features = build_regime_features(
-        msci = benchmark,
-        gold = macro["GOLD"],
-        usdidx = macro["USDIDX"],
-        vix = macro["VIX"]
+        msci=benchmark,
+        gold=macro["GOLD"],
+        usdidx=macro["USDIDX"],
+        vix=macro["VIX"]
     )
 
     print(f"[Pipeline] Fitting GMM ({n_regimes} regimes, {len(features)} observations)")
@@ -83,9 +99,9 @@ def run_regime_pipeline(
     trans_matrix = transition_matrix(labels)
 
     print("[Pipeline] Done")
-    print(f"---Regime Distribution: ")
+    print(f"--- Regime Distribution:")
     print(f"{labels.value_counts().sort_index().to_string()}")
-    print(f"---Transition Matrix:")
+    print(f"--- Transition Matrix:")
     print(f"{trans_matrix.to_string()}")
 
     result = RegimeResult(
@@ -95,21 +111,24 @@ def run_regime_pipeline(
         transition_matrix=trans_matrix,
         gmm=gmm,
         scaler=scaler,
+        # Align benchmark and macro prices to the label index (features drop early NaN rows)
         benchmark_prices=benchmark.loc[labels.index],
         macro_prices=macro.loc[labels.index]
     )
 
-    return result 
+    return result
 
+
+# Map integer GMM cluster IDs to semantic regime names using mean VIX level
+# GMM cluster IDs are arbitrary - this resolves the ambiguity by computing the
+# mean VIX for each cluster and sorting: lowest = "risk-on", middle = "neutral", highest = "risk-off"
+# If the VIX feature is absent (e.g. during testing), returns generic "regime_N" labels
 def _assign_regime_labels(labels: pd.Series, features: pd.DataFrame) -> dict[int, str]:
-    # assign readable names to cluster out ints by VIX level per cluster.
-    # Highest = risk-off
-    # Lowest = risk-on
-
     vix_col = "vix_level_1m"
     if vix_col not in features.columns:
         return {i: f"regime_{i}" for i in labels.unique()}
-    
+
+    # Compute mean VIX for each cluster and sort from lowest to highest
     mean_vix = (
         features[[vix_col]]
             .assign(regime=labels)
@@ -117,6 +136,7 @@ def _assign_regime_labels(labels: pd.Series, features: pd.DataFrame) -> dict[int
             .mean()
             .sort_values()
     )
+
     ordered = mean_vix.index.tolist()
     label_names = ["risk-on", "neutral", "risk-off"]
     return dict(zip(ordered, label_names))

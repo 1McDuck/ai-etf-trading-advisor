@@ -1,49 +1,63 @@
 # quant_engine/src/portfolio/constructor.py
-
-# Engine for portfolio construction
-# Takes in the regime label and the etf ranking and produces target allocations
-
-# Reimge Logic:
-# risk-on (0): overweight top X sectors by rank
-# neutral (1): equal-weight all sectors
-# risk-off (2): underweight bottom X sectors
-
-# Inpurts:
-# - regime: int regime label (0,1,2)
-# - etf_rankings: pd.Series, the outperform_prob per sector ETF
-# - risk_level: 3 risk levels, conservative, moderate, aggressive
-
-# Out:
-# pd.Series of allocation weights
+#
+# Portfolio construction rules based on the current market regime.
+#
+# The strategy adjusts how aggressively it concentrates or diversifies the
+# portfolio depending on both the detected regime and the investor's risk preference.
+#
+# Regime logic:
+# "risk-on": Concentrate into the top N highest-ranked ETFs. The model
+#            expects momentum to persist, so we bet on the leaders.
+# "neutral": Equal-weight all ETFs. No clear directional signal, so spread
+#            the risk evenly across the full universe.
+# "risk-off":Exclude the bottom N lowest-ranked ETFs (the most vulnerable sectors) 
+#            and equal-weight the remaining holdings.
+#
+# Risk level controls how concentrated the bet is (top N or bottom N excluded):
+#  - conservative: N=3 (moderate concentration/exclusion)
+#  - moderate: N=2 (higher concentration/exclusion)
+#  - aggressive: N=1 (maximum single-ETF concentration or one exclusion)
+#
+# Note: the regime parameter is a string label ("risk-on", "neutral", "risk-off"),
+# not the raw GMM integer. The strategy layer handles the conversion before calling this function.
 
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
-REGIME_RISK_ON = 0
-REGIME_NEUTRAL = 1
-REGIME_RISK_OFF = 2
 
+# Construct target portfolio weights given a regime label and ETF rankings
+# The ETF rankings are the model's predicted outperformance probabilities,
+# sorted from highest to lowest. Regime and risk level together determine
+# how those rankings translate into weights.
 def build_portfolio(
-    regime: int,
-    etf_rankings: pd.Series,
-    risk_level: str = "moderate"
+        regime: str,
+        etf_rankings: pd.Series,
+        risk_level: str = "moderate"
 ) -> pd.Series:
+    # regime: "risk-on", "neutral", or "risk-off"
+    # etf_rankings: outperformance probabilities per ETF, sorted descending
+    # risk_level: "conservative", "moderate", or "aggressive"
+    # returns: allocation weights indexed by ETF name (sum to 1.0, non-negative)
     n = len(etf_rankings)
     names = etf_rankings.index.tolist()
 
-    if regime == REGIME_NEUTRAL:
-        weights = np.ones(n)/n
-    
-    elif regime == REGIME_RISK_ON:
+    if regime == "neutral":
+        # No directional signal - spread risk evenly across all sectors
+        weights = np.ones(n) / n
+
+    elif regime == "risk-on":
+        # Momentum driven: concentrate in the top ranked ETFs
         top_n = {"conservative": 3, "moderate": 2, "aggressive": 1}[risk_level]
         weights = np.zeros(n)
         top_idx = [names.index(etf) for etf in etf_rankings.head(top_n).index]
         for i in top_idx:
-            weights[i] = 1.0/top_n
+            weights[i] = 1.0 / top_n
 
-    else: # REGIME_RISK_OFF
+    else:
+        # "risk-off" (or any unrecognised label - treated as risk-off)
+        # Defensive: exclude the weakest sectors and equal weight the rest
         bottom_n = {"conservative": 3, "moderate": 2, "aggressive": 1}[risk_level]
         bottom_names = set(etf_rankings.tail(bottom_n).index)
         included = [etf for etf in names if etf not in bottom_names]
