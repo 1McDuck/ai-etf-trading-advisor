@@ -8,8 +8,7 @@
 # 2. Transition heatmap: the regime-to-regime switching probability matrix shown
 #                        as a colour-coded grid.
 #
-# Both functions return a matplotlib Figure so the caller can choose to save,
-# display or embed it in the web API response.
+# Both return a Figure - can save it, show it, or send it via the API.
 
 from __future__ import annotations
 
@@ -35,7 +34,7 @@ DEFAULT_INT_COLOURS = {
 
 # Shade the chart background with coloured vertical spans for each regime block
 # Instead of colouring every individual day, this finds contiguous runs of the same
-# label and draws a single axvspan per block — much faster and cleaner visuals
+# label and draws a single axvspan per block - much faster and cleaner visuals
 def _add_regime_spans(ax: plt.Axes, labels: pd.Series, colour_map: dict) -> None:
     # ax: matplotlib Axes to draw on
     # labels: Series of regime labels (int or str) indexed by date

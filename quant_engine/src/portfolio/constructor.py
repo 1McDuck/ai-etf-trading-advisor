@@ -13,13 +13,13 @@
 # "risk-off":Exclude the bottom N lowest-ranked ETFs (the most vulnerable sectors) 
 #            and equal-weight the remaining holdings.
 #
-# Risk level controls how concentrated the bet is (top N or bottom N excluded):
-#  - conservative: N=3 (moderate concentration/exclusion)
-#  - moderate: N=2 (higher concentration/exclusion)
-#  - aggressive: N=1 (maximum single-ETF concentration or one exclusion)
+# Risk level sets N (how many ETFs to concentrate into or exclude):
+#  - conservative: N=3
+#  - moderate: N=2
+#  - aggressive: N=1 (all-in on the top ETF, or only exclude 1)
 #
-# Note: the regime parameter is a string label ("risk-on", "neutral", "risk-off"),
-# not the raw GMM integer. The strategy layer handles the conversion before calling this function.
+# Note: regime is a string label here ("risk-on", "neutral", "risk-off") not a GMM int.
+# strategy.py converts it before calling this.
 
 from __future__ import annotations
 

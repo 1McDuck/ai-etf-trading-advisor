@@ -49,9 +49,8 @@ def annual_return(log_returns: pd.Series) -> float:
     return float(log_returns.mean() * TRADING_DAYS)
 
 
-# Maximum peak-to-trough drawdown over the full period
-# Converts log returns to a cumulative growth curve then finds the largest
-# percentage decline from any running peak to the subsequent trough
+# Worst peak-to-trough drop over the full period
+# Builds the growth curve then finds the biggest fall from any previous high
 def max_drawdown(log_returns: pd.Series) -> float:
     cum = log_returns.cumsum().apply(np.exp)
     rolling_max = cum.cummax()
@@ -80,8 +79,8 @@ def excess_return(portfolio: pd.Series, benchmark: pd.Series) -> float:
 
 
 # Annualised portfolio turnover
-# Turnover on a given day is the sum of absolute weight changes at rebalance
-# This function annualises the daily average to show how actively the portfolio trades
+# Each rebalance day's turnover is the total absolute weight change,
+# scaled up to a yearly figure by multiplying the daily mean by 252
 def annual_turnover(turnover: pd.Series) -> float:
     return float(turnover.mean() * TRADING_DAYS)
 

@@ -4,10 +4,10 @@
 #
 # Produces two things from a set of daily log return series:
 # 1. A 4-panel matplotlib figure:
-#       - Panel 1: Cumulative returns (growth of £1) - strategy vs benchmark
-#       - Panel 2: Drawdown chart - strategy vs benchmark
-#       - Panel 3: Rolling 12mth Sharpe ratio for the strategy
-#       - Panel 4: Annual returns bar chart - strategy vs benchmark side by side
+#     - Panel 1: Cumulative returns (growth of £1) - strategy vs benchmark
+#     - Panel 2: Drawdown chart - strategy vs benchmark
+#     - Panel 3: Rolling 12mth Sharpe ratio for the strategy
+#     - Panel 4: Annual returns bar chart - strategy vs benchmark side by side
 #
 # 2. A stats dict of key performance metrics formatted as display strings.
 #
@@ -30,7 +30,7 @@ from src.evaluation.metrics import (
 )
 
 TRADING_DAYS = 252
-ROLL_SHARPE_WINDOW = 252  # rolling window for the Sharpe ratio panel
+ROLL_SHARPE_WINDOW = 252  # rolling window for the sharpe ratio panel
 
 
 # Main entry point - builds both the figure and then stats dict
@@ -54,8 +54,6 @@ def build_tearsheet(
 
 
 # Compute all the summary stats and format them as strings for display
-# All values are returned as formatted strings so the caller can drop them
-# straight into a table without any extra formatting
 def _compute_stats(portfolio, benchmark, turnover, risk_free) -> dict:
     return {
         "Annual Return (Strategy)": f"{annual_return(portfolio):.2%}",
@@ -201,7 +199,7 @@ def _plot_tearsheet(portfolio, benchmark, stats, title) -> plt.Figure:
 # Helper functions
 
 # Compute the drawdown series from a cumulative growth curve
-# Drawdown at each point is the % drop from the running peak — always <= 0
+# Drawdown at each point is the % drop from the running peak - always <= 0
 def _drawdown_series(cum_returns: pd.Series) -> pd.Series:
     rolling_max = cum_returns.cummax()
     return (cum_returns - rolling_max) / rolling_max

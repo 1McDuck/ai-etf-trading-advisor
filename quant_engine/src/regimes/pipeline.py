@@ -10,14 +10,11 @@
 # 5. Compute the regime transition probability matrix
 # 6. Return everything in a RegimeResult dataclass
 #
-# The RegimeResult is self-contained - it carries the raw labels, confidence scores,
-# features, transition matrix, the fitted model objects, and price series needed for
-# downstream visualisation and portfolio construction.
+# Everything the frontend needs is in RegimeResult - labels, features, model objects, prices.
 #
 # Note on label assignment:
-# GMM cluster integers have no inherent semantic meaning - cluster 0 is not always
-# "risk-off". The _assign_regime_labels() helper maps integer cluster IDs to named
-# labels by ranking each cluster's mean VIX level after fitting.
+# GMM cluster IDs are arbitrary - cluster 0 isn't always "risk-off".
+# _assign_regime_labels() maps them to named labels by sorting clusters by mean VIX level.
 
 from __future__ import annotations
 
@@ -52,8 +49,7 @@ class RegimeResult:
     benchmark_prices: pd.Series
     macro_prices: pd.DataFrame
 
-    # Map integer cluster IDs to human-readable regime names
-    # Computed by sorting clusters by mean VIX level: lowest VIX = "risk-on", middle = "neutral", highest = "risk-off"
+    # Sort clusters by mean VIX: lowest = "risk-on", middle = "neutral", highest = "risk-off"
     def label_names(self) -> pd.Series:
         regime_map = _assign_regime_labels(self.labels, self.features)
         return self.labels.map(regime_map)

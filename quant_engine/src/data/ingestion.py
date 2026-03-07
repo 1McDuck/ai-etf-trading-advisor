@@ -2,8 +2,8 @@
 #
 # Market data ingestion using yfinance, aligned to the NYSE trading calendar.
 #
-# This is the single entry point for all price data used across the pipeline.
-# All series are reindexed to official NYSE trading dates and forward-filled to fix any gaps.
+# All price data in the pipeline goes through here.
+# Series are reindexed to NYSE trading dates and forward-filled to fill any gaps.
 
 import yfinance as yf
 import pandas as pd

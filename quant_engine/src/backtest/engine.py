@@ -7,18 +7,10 @@
 # historically with no look-ahead bias.
 #
 # Assumptions:
-# - Returns are computed as daily log returns
-# - Weights are updated at the open on each rebalance date and held constant 
-#   until the next scheduled rebalance
-# - Turnover is the sum of absolute weight changes on each rebalance day
-#   (a common measure of how actively the portfolio is managed)
-# - Input prices are assumed to be aligned on the same NYSE trading calendar,
-#   with any missing dates already forward-filled by the ingestion layer
-#
-# Outputs:
-# - portfolio_returns: daily log returns of the strategy portfolio
-# - benchmark_returns: daily log returns of the benchmark (aligned to portfolio)
-# - turnover: daily weight-change magnitude (0 on non-rebalance days)
+# - log returns throughout
+# - weights update at open on each rebalance date, held until the next one
+# - turnover = sum of absolute weight changes on rebalance days
+# - prices must be pre-aligned to NYSE calendar (ingestion handles this)
 
 from __future__ import annotations
 
@@ -35,14 +27,10 @@ def run_backtest(
         benchmark: pd.Series, 
         weights_schedule: pd.DataFrame
 ) -> dict[str, pd.Series]:
-    # etf_prices: DataFrame of daily close prices, columns = ETF names
-    # benchmark: Series of daily benchmark close prices (MSCI World)
-    # weights_schedule: DataFrame of target weights indexed by rebalance dates,
-    #                   columns = ETF names
-    # returns: dict with keys:
-    # - "portfolio_returns": pd.Series of daily portfolio log returns
-    # - "benchmark_returns": pd.Series of daily benchmark log returns
-    # - "turnover": pd.Series of daily turnover (0 on non-rebalance days)
+    # etf_prices: daily close prices, columns = ETF names
+    # benchmark: daily benchmark close prices
+    # weights_schedule: target weights indexed by rebalance dates
+    # returns: dict with portfolio_returns, benchmark_returns, turnover series
 
     # Compute daily log returns for all ETFs and the benchmark
     log_etf   = np.log(etf_prices / etf_prices.shift(1)).fillna(0)

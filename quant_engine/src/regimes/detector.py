@@ -29,7 +29,7 @@ SMOOTH_WINDOW = 5
 # Fit a Gaussian Mixture Model to the regime feature matrix
 # Features are standardised first so that scale differences don't dominate clustering
 # n_init=5 reruns the EM algorithm from five different starting points to reduce
-# sensitivity to initialisation — keeps whichever run had the best log-likelihood
+# sensitivity to initialisation - keeps whichever run had the best log-likelihood
 def fit_regime_model(
         features: pd.DataFrame,
         n_components: int = N_COMPONENTS,

@@ -37,7 +37,7 @@ from src.regimes.pipeline import run_regime_pipeline, RegimeResult
 # Forward prediction window in trading days (roughly 3 calendar months)
 FORWARD_WINDOW = 63
 
-# Feature columns the model is trained on — order must match at inference time
+# Feature columns the model is trained on - order must match at inference time
 FEATURE_COLUMNS = ["mom_1m", "mom_3m", "vol_1m", "vol_3m", "rel_str_3m", "regime"]
 
 

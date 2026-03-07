@@ -12,8 +12,8 @@
 # 7. Tearsheet stats - calculate summary performance metrics
 #
 # Design notes:
-# - The regime GMM is fitted on the full historical period. This is a simplification that
-#   assumes the regime structure is stationary, avoiding the need for rolling refitting.
+# - GMM is fitted on the full period - a simplification that assumes regime structure
+#   doesn't shift over time (no rolling refit).
 # - The ranking model is trained on the full period and then used to generate weights at
 #   each rebalance date using only features available at that point (no lookahead in features).
 # - Regime labels used as model features (integer cluster IDs) are separate from the semantic
