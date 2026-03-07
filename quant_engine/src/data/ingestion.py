@@ -18,7 +18,7 @@ MACRO_TICKERS = {
 }
 
 # MSCI World index used as the benchmark for regime detection and performance comparison
-BENCHMARK_TICKER = "^990100-USD-STRD"
+BENCHMARK_TICKER = "^990100-USD-STRD" # MSCI ticker yfinance
 
 # The nine sectorised ETFs that make up the investable ETF universe for the strategy
 SECTOR_ETFS = {
