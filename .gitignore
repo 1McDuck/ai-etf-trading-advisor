@@ -1,8 +1,8 @@
 # Python
 __pycache__/
 *.pyc
-*.pyo 
-*.pyd 
+*.pyo
+*.pyd
 .venv/
 .env
 
@@ -11,6 +11,18 @@ __pycache__/
 htmlcov/
 .pytest_cache/
 
-# OS / Exitor
+# OS / Editor
 .DS_Store
 .vscode/
+
+# Generated outputs — run the webapp to produce these
+outputs/
+
+# Trained model artifacts
+*.joblib
+
+# Frontend build artifacts
+webapp/frontend/dist/
+
+# Node dependencies
+node_modules/
