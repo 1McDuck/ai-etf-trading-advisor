@@ -10,23 +10,23 @@ with a supervised ETF ranking (Random Forest) and the web interface
 ## Setup and run
 
 ### 1 Clone repository
-git clone https://github.com/1McDuck/ai-etf-trading-advisor.git
-cd ai-etf-trading-advisor
+- git clone https://github.com/1McDuck/ai-etf-trading-advisor.git
+- cd ai-etf-trading-advisor
 
 ### 2 Backend
 
-cd webapp/backent
-python -m venv venv
-venv/Scripts/activate
-pip install -r requirements.txt
-cd ..//..
-python -m uvicorn webapp.backend.main:app --host 127.0.0.1 --port 8000
+- cd webapp/backent
+- python -m venv venv
+- venv/Scripts/activate
+- pip install -r requirements.txt
+- cd ..//..
+- python -m uvicorn webapp.backend.main:app --host 127.0.0.1 --port 8000
 
 ### 3 Frontend
 
-cd webapp/frontend
-npm install
-npm run dev
+- cd webapp/frontend
+- npm install
+- npm run dev
 
 ### 4 Open the app
-http://localhost:3000
+- http://localhost:3000
