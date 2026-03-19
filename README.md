@@ -15,7 +15,7 @@ with a supervised ETF ranking (Random Forest) and the web interface
 
 ### 2 Backend
 
-- cd webapp/backent
+- cd webapp/backend
 - python -m venv venv
 - venv/Scripts/activate
 - pip install -r requirements.txt
